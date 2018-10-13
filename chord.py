@@ -31,20 +31,34 @@ class Node:
     '''
     def __init__(self, id, key_size):
         self.id = id
+        self._has_joined = False
         self.predecessor = None
-        self.finger_table = dict()
+        self.finger_table = []
 
         # Initialize Finger table
         for i in range(1, key_size + 1):
-            self.finger_table[i] = self.id
+            self.finger_table.append(self.id)
 
 
+# Helper Methods
 
 def print_error(type, args=dict()):
     '''
     Helper Method to print error messages
     '''
     print(error_map[type].format(**args))
+
+
+def is_int_node_id(id):
+    '''
+    Check if the given ID is integer
+    '''
+    try:
+        _ = int(id)
+        return True
+    except Exception as ex:
+        print_error(1, {'id': id})
+        return False
 
 
 def get_operation_mode():
@@ -86,24 +100,83 @@ def execute_command(command):
     '''
     Execute the given command
     '''
-    if command == 'end':
+    cmd_parts = command.split(' ')
+    if cmd_parts[0] == 'end':
+        # stop the program without saying anything.
         sys.exit()
-    elif command == 'list':
+    elif cmd_parts[0] == 'list':
         list_ring()
+    elif cmd_parts[0] == 'add':
+        if len(cmd_parts) != 2:
+            print_error(3, {'cmd': 'add', 'act': 2, 'given': len(cmd_parts)})
+        if is_int_node_id(cmd_parts[1]):
+            add_node(int(cmd_parts[1]))
+    elif cmd_parts[0] == 'drop':
+        if len(cmd_parts) != 2:
+            print_error(3, {'cmd': 'drop', 'act': 2, 'given': len(cmd_parts)})
+        if is_int_node_id(cmd_parts[1]):
+            drop_node(int(cmd_parts[1]))
+    elif cmd_parts[0] == 'join':
+        if len(cmd_parts) != 3:
+            print_error(3, {'cmd': 'fix', 'act': 2, 'given': len(cmd_parts)})
+        if is_int_node_id(cmd_parts[1]) and is_int_node_id(cmd_parts[2]):
+            join_node(int(cmd_parts[1]), int(cmd_parts[2]))
+    elif cmd_parts[0] == 'fix':
+        if len(cmd_parts) != 2:
+            print_error(3, {'cmd': 'fix', 'act': 2, 'given': len(cmd_parts)})
+        if is_int_node_id(cmd_parts[1]):
+            fix_node(int(cmd_parts[1]))
+    elif cmd_parts[0] == 'stab':
+        if len(cmd_parts) != 2:
+            print_error(3, {'cmd': 'stab', 'act': 2, 'given': len(cmd_parts)})
+        if is_int_node_id(cmd_parts[1]):
+            stabilize_node(int(cmd_parts[1]))
+    elif cmd_parts[0] == 'show':
+        if len(cmd_parts) != 2:
+            print_error(3, {'cmd': 'show', 'act': 2, 'given': len(cmd_parts)})
+        if is_int_node_id(cmd_parts[1]):
+            show_node(int(cmd_parts[1]))
     else:
         print_error(0)
 
 
 def list_ring():
-    '''
-    Show the id for each node in the ring.
-    '''
+    '''Show the id for each node in the ring.'''
+    print('Nodes: {}'.format(', '.join(sorted(topology.keys()))))
+
+
+def add_node(id):
+    '''Add node to ring with given id.'''
+    print('Added node {}'.format(id))
+
+
+def drop_node(id):
+    '''Remove node with given id from ring.'''
+    print('Dropped node {}'.format(id))
+
+
+def stabilize_node(id):
+    '''Stabilize method for given node.'''
     pass
 
+
+def fix_node(id):
+    '''Fix the finger table for given node.'''
+    pass
+
+
+def show_node(id):
+    '''Show the successor, predecessor, and finger table for the given node.'''
+    print('Node {}: suc {}, pre {}: finger {}'.format(id, id, id))
+
+
+def join_node(from_id, to_id):
+    '''Join node from with the node to. Join should be call only once right after a node is added.'''
+    pass
+
+
 def main():
-    '''
-    Main function that execute the entire Program
-    '''
+    '''Main function that execute the entire Program'''
     mode = get_operation_mode()
     if mode == 0:
         # Batch mode
