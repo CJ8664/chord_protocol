@@ -167,7 +167,7 @@ def fix_node(id):
 
 def show_node(id):
     '''Show the successor, predecessor, and finger table for the given node.'''
-    print('Node {}: suc {}, pre {}: finger {}'.format(id, id, id))
+    print('Node {}: suc {}, pre {}: finger {}'.format(id, id, id, id))
 
 
 def join_node(from_id, to_id):
