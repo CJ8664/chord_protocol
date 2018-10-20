@@ -103,7 +103,11 @@ def start_interactive_mode():
     '''
     Start the program in Interactive mode
     '''
-    print_error(1, {'id': 100})
+    try:
+        while True:
+            execute_command(raw_input('> '))
+    except KeyboardInterrupt as ex:
+        pass
 
 
 def execute_command(command):
@@ -115,39 +119,40 @@ def execute_command(command):
         # stop the program without saying anything.
         sys.exit()
     elif cmd_parts[0] == 'list':
-        list_ring()
+        return list_ring()
     elif cmd_parts[0] == 'add':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'add', 'act': 2, 'given': len(cmd_parts)})
-        if is_int_node_id(cmd_parts[1]):
-            add_node(int(cmd_parts[1]))
+            print_error(3, {'cmd': 'add', 'act': 1, 'given': len(cmd_parts)})
+        elif is_int_node_id(cmd_parts[1]):
+            return add_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'drop':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'drop', 'act': 2, 'given': len(cmd_parts)})
-        if is_int_node_id(cmd_parts[1]):
-            drop_node(int(cmd_parts[1]))
+            print_error(3, {'cmd': 'drop', 'act': 1, 'given': len(cmd_parts)})
+        elif is_int_node_id(cmd_parts[1]):
+            return drop_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'join':
         if len(cmd_parts) != 3:
-            print_error(3, {'cmd': 'fix', 'act': 2, 'given': len(cmd_parts)})
-        if is_int_node_id(cmd_parts[1]) and is_int_node_id(cmd_parts[2]):
-            join_node(int(cmd_parts[1]), int(cmd_parts[2]))
+            print_error(3, {'cmd': 'fix', 'act': 2, 'given': len(cmd_parts) - 1})
+        elif is_int_node_id(cmd_parts[1]) and is_int_node_id(cmd_parts[2]):
+            return join_node(int(cmd_parts[1]), int(cmd_parts[2]))
     elif cmd_parts[0] == 'fix':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'fix', 'act': 2, 'given': len(cmd_parts)})
-        if is_int_node_id(cmd_parts[1]):
-            fix_node(int(cmd_parts[1]))
+            print_error(3, {'cmd': 'fix', 'act': 1, 'given': len(cmd_parts)})
+        elif is_int_node_id(cmd_parts[1]):
+            return fix_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'stab':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'stab', 'act': 2, 'given': len(cmd_parts)})
-        if is_int_node_id(cmd_parts[1]):
-            stabilize_node(int(cmd_parts[1]))
+            print_error(3, {'cmd': 'stab', 'act': 1, 'given': len(cmd_parts)})
+        elif is_int_node_id(cmd_parts[1]):
+            return stabilize_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'show':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'show', 'act': 2, 'given': len(cmd_parts)})
-        if is_int_node_id(cmd_parts[1]):
-            show_node(int(cmd_parts[1]))
+            print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts)})
+        elif is_int_node_id(cmd_parts[1]):
+            return show_node(int(cmd_parts[1]))
     else:
         print_error(0)
+    return False
 
 
 def list_ring():
@@ -179,7 +184,8 @@ def fix_node(id):
 
 def show_node(id):
     '''Show the successor, predecessor, and finger table for the given node.'''
-    print('Node {}: suc {}, pre {}: finger {}'.format(id, id, id, id))
+    node = topology[id]
+    print('Node {}: suc {}, pre {}: finger {}'.format(id, node.finger_table[0], node.predecessor, ','.join(map(str, node.finger_table))))
 
 
 def join_node(from_id, to_id):
