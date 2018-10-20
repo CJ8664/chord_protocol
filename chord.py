@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import argparse
 import sys
 import os
 
@@ -65,14 +66,23 @@ def get_operation_mode():
     '''Parse the argument and return the operation mode'''
     global key_size, file_name
 
-    if len(sys.argv) > 2:
+    parser = argparse.ArgumentParser(description='CHORD protocol simulation')
+
+    parser.add_argument('key_size', type=int, nargs=1,
+                    help='Key size for finger table')
+
+    parser.add_argument('-i', dest='file_name', action='store',
+                    help='Input file for batch mode')
+
+    args = parser.parse_args()
+    file_name = args.file_name
+    key_size = args.key_size[0]
+
+    if file_name:
         # Batch mode
-        file_name = sys.argv[2]
-        key_size = int(sys.argv[3])
         return 0
     else:
         # Interactive mode
-        key_size = int(sys.argv[1])
         return 1
 
 
