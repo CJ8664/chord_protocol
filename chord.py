@@ -157,7 +157,7 @@ def execute_command(command):
 
 def list_ring():
     '''Show the id for each node in the ring.'''
-    print('Nodes: {}'.format(', '.join(sorted(topology.keys()))))
+    print('Nodes: {}'.format(', '.join(map(str, sorted(topology.keys())))))
 
 
 def add_node(id):
