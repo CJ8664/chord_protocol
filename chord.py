@@ -30,7 +30,7 @@ class Node:
     '''
     Class to store information about a Node in the network
     '''
-    def __init__(self, id, key_size):
+    def __init__(self, id):
         self.id = id
         self._has_joined = False
         self.predecessor = None
@@ -157,6 +157,8 @@ def list_ring():
 
 def add_node(id):
     '''Add node to ring with given id.'''
+    node = Node(id)
+    topology[id] = node
     print('Added node {}'.format(id))
 
 
