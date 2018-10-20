@@ -122,12 +122,12 @@ def execute_command(command):
         return list_ring()
     elif cmd_parts[0] == 'add':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'add', 'act': 1, 'given': len(cmd_parts)})
+            print_error(3, {'cmd': 'add', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return add_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'drop':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'drop', 'act': 1, 'given': len(cmd_parts)})
+            print_error(3, {'cmd': 'drop', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return drop_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'join':
@@ -137,17 +137,17 @@ def execute_command(command):
             return join_node(int(cmd_parts[1]), int(cmd_parts[2]))
     elif cmd_parts[0] == 'fix':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'fix', 'act': 1, 'given': len(cmd_parts)})
+            print_error(3, {'cmd': 'fix', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return fix_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'stab':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'stab', 'act': 1, 'given': len(cmd_parts)})
+            print_error(3, {'cmd': 'stab', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return stabilize_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'show':
         if len(cmd_parts) != 2:
-            print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts)})
+            print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return show_node(int(cmd_parts[1]))
     else:
@@ -184,9 +184,11 @@ def fix_node(id):
 
 def show_node(id):
     '''Show the successor, predecessor, and finger table for the given node.'''
-    node = topology[id]
-    print('Node {}: suc {}, pre {}: finger {}'.format(id, node.finger_table[0], node.predecessor, ','.join(map(str, node.finger_table))))
-
+    if id in topology:
+        node = topology[id]
+        print('Node {}: suc {}, pre {}: finger {}'.format(id, node.finger_table[0], node.predecessor, ','.join(map(str, node.finger_table))))
+    else:
+        print_error(4, {'id': id})
 
 def join_node(from_id, to_id):
     '''Join node from with the node to. Join should be call only once right after a node is added.'''
