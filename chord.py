@@ -45,21 +45,21 @@ class Node:
         Join a Chord ring containing to_node
         '''
         self.predecessor = None
-        self.finger_table[0] = to_node.find_successor(self)
+        self.finger_table[0] = to_node.find_successor(self.id)
         self.has_joined = True
 
-    def find_successor(self, from_node):
+    def find_successor(self, from_id):
         '''Find the successor starting with to_node'''
-        if (from_node.id > self.id and from_node.id <= self.finger_table[0]):
-            return from_node.finger_table[0]
+        if (from_id > self.id and from_id <= self.finger_table[0]):
+            return self.finger_table[0]
         else:
             # forward the query around the circle
             successor = topology[self.finger_table[0]]
-            candidate_id = successor.closest_preceding_node(from_node.id)
+            candidate_id = successor.closest_preceding_node(from_id)
             candidate = topology[candidate_id]
             if candidate_id == self.id:
                 return candidate_id
-            return candidate.find_successor(from_node)
+            return candidate.find_successor(from_id)
 
 
     def closest_preceding_node(self, from_id):
@@ -89,7 +89,11 @@ class Node:
         it might be our predecessor
         '''
         if (self.predecessor is None or (id > self.predecessor and id < self.id)):
-            self.predecessor = id;
+            self.predecessor = id
+
+    def fix_finger_table(self):
+        for i in range(key_size):
+            self.finger_table[i] = self.find_successor((self.id + 2**i)%2**key_size)
 
 
 # Helper Methods
