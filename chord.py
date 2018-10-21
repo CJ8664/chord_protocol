@@ -32,13 +32,64 @@ class Node:
     '''
     def __init__(self, id):
         self.id = id
-        self._has_joined = False
+        self.has_joined = False
         self.predecessor = None
         self.finger_table = []
 
         # Initialize Finger table
-        for i in range(1, key_size + 1):
+        for i in range(key_size):
             self.finger_table.append(self.id)
+
+    def join(self, to_node):
+        '''
+        Join a Chord ring containing to_node
+        '''
+        self.predecessor = None
+        self.finger_table[0] = to_node.find_successor(self)
+        self.has_joined = True
+
+    def find_successor(self, from_node):
+        '''Find the successor starting with to_node'''
+        if (from_node.id > self.id and from_node.id <= self.finger_table[0]):
+            return from_node.finger_table[0]
+        else:
+            # forward the query around the circle
+            successor = topology[self.finger_table[0]]
+            candidate_id = successor.closest_preceding_node(from_node.id)
+            candidate = topology[candidate_id]
+            if candidate_id == self.id:
+                return candidate_id
+            return candidate.find_successor(from_node)
+
+
+    def closest_preceding_node(self, from_id):
+        '''Search the local table for the highest predecessor of id'''
+        for i in range(key_size - 1, -1, -1):
+            if (self.finger_table[i] > self.id and self.finger_table[i] < from_id):
+                return self.finger_table[i]
+        return self.id
+
+
+    def stabalize(self):
+        '''
+        Called periodically. n asks the successor about its predecessor,
+        verifies if n's immediate successor is consistent,
+        and tells the successor about n
+        '''
+        successor = topology[self.finger_table[0]]
+        if successor.predecessor:
+            temp = topology[successor.predecessor]
+            if (temp.id > self.id and temp.id < successor.id):
+                self.finger_table[0] = temp.id;
+                successor = topology[self.finger_table[0]]
+        successor.notify(self.id);
+
+    def notify(self, id):
+        '''
+        it might be our predecessor
+        '''
+        if (self.predecessor is None or (id > self.predecessor and id < self.id)):
+            self.predecessor = id;
 
 
 # Helper Methods
@@ -114,6 +165,7 @@ def execute_command(command):
     '''
     Execute the given command
     '''
+    command = command.strip()
     cmd_parts = command.split(' ')
     if cmd_parts[0] == 'end':
         # stop the program without saying anything.
@@ -192,7 +244,31 @@ def show_node(id):
 
 def join_node(from_id, to_id):
     '''Join node from with the node to. Join should be call only once right after a node is added.'''
-    pass
+    global topology
+
+    both_node_exists = True
+
+    if from_id not in topology:
+        both_node_exists = False
+        print_error(4, {'id': from_id})
+
+    if to_id not in topology:
+        both_node_exists = False
+        print_error(4, {'id': to_id})
+
+    if both_node_exists:
+        from_node = topology[from_id] # current
+        to_node = topology[to_id] # current
+
+        if not from_node.has_joined:
+            from_node.join(to_node)
+            # topology[from_id] = from_node
+            # Stabalize
+            from_node.stabalize()
+            # Notify
+            from_node.notify(to_id)
+            # Fix fingers
+            to_node.fix_finger_table()
 
 
 def main():
