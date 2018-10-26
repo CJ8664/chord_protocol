@@ -40,62 +40,6 @@ class Node:
         for i in range(key_size):
             self.finger_table.append(self.id)
 
-    def join(self, to_node):
-        '''
-        Join a Chord ring containing to_node
-        '''
-        self.predecessor = None
-        self.finger_table[0] = to_node.find_successor(self.id)
-        self.has_joined = True
-
-    def find_successor(self, from_id):
-        '''Find the successor starting with to_node'''
-        if (from_id > self.id and from_id <= self.finger_table[0]):
-            return self.finger_table[0]
-        else:
-            # forward the query around the circle
-            successor = topology[self.finger_table[0]]
-            candidate_id = successor.closest_preceding_node(from_id)
-            candidate = topology[candidate_id]
-            if candidate_id == self.id:
-                return candidate_id
-            return candidate.find_successor(from_id)
-
-
-    def closest_preceding_node(self, from_id):
-        '''Search the local table for the highest predecessor of id'''
-        for i in range(key_size - 1, -1, -1):
-            if (self.finger_table[i] > self.id and self.finger_table[i] < from_id):
-                return self.finger_table[i]
-        return self.id
-
-
-    def stabalize(self):
-        '''
-        Called periodically. n asks the successor about its predecessor,
-        verifies if n's immediate successor is consistent,
-        and tells the successor about n
-        '''
-        successor = topology[self.finger_table[0]]
-        if successor.predecessor:
-            temp = topology[successor.predecessor]
-            if (temp.id > self.id and temp.id < successor.id):
-                self.finger_table[0] = temp.id;
-                successor = topology[self.finger_table[0]]
-        successor.notify(self.id);
-
-    def notify(self, id):
-        '''
-        it might be our predecessor
-        '''
-        if (self.predecessor is None or (id > self.predecessor and id < self.id)):
-            self.predecessor = id
-
-    def fix_finger_table(self):
-        for i in range(key_size):
-            self.finger_table[i] = self.find_successor((self.id + 2**i)%2**key_size)
-
-
 # Helper Methods
 
 def print_error(type, args=dict()):
@@ -228,11 +172,6 @@ def drop_node(id):
     print('Dropped node {}'.format(id))
 
 
-def stabilize_node(id):
-    '''Stabilize method for given node.'''
-    pass
-
-
 def fix_node(id):
     '''Fix the finger table for given node.'''
     pass
@@ -261,18 +200,66 @@ def join_node(from_id, to_id):
         print_error(4, {'id': to_id})
 
     if both_node_exists:
-        from_node = topology[from_id] # current
-        to_node = topology[to_id] # current
 
-        if not from_node.has_joined:
-            from_node.join(to_node)
-            # topology[from_id] = from_node
+        if not topology[from_id].has_joined:
+            # Join
+            topology[from_id].predecessor = None
+            topology[from_id].finger_table[0] = find_successor(to_id, from_id)
+            topology[from_id].has_joined = True
+            # Notify new successor that from_id might be its new predecessor
+            notify(topology[from_id].finger_table[0], from_id)
             # Stabalize
-            from_node.stabalize()
-            # Notify
-            from_node.notify(to_id)
+            stabalize(to_id)
             # Fix fingers
-            to_node.fix_finger_table()
+            # fix_finger_table(to_id)
+
+def find_successor(to_id, from_id):
+    '''Find the successor starting with to_node'''
+    successor_id = topology[to_id].finger_table[0]
+
+    if (to_id < from_id <= 2**key_size-1) or (0 <= from_id <= successor_id):
+        return successor_id
+    else:
+        # forward the query around the circle
+        candidate_id = closest_preceding_node(successor_id, from_id)
+        return find_successor(candidate_id, from_id)
+
+
+def closest_preceding_node(to_id, from_id):
+    '''Search the local table for the highest predecessor of id'''
+    for i in range(key_size - 1, -1, -1):
+        finger_id = topology[to_id].finger_table[i]
+        print('start {} i {} finger {} for {}'.format(from_id, i, finger_id, to_id))
+        if (to_id < finger_id <= 2**key_size-1) or (0 <= finger_id < from_id):
+            return finger_id
+    return to_id
+
+
+def stabalize(id):
+    '''
+    Called periodically. n asks the successor about its predecessor,
+    verifies if n's immediate successor is consistent,
+    and tells the successor about n
+    '''
+    successor = topology[topology[id].finger_table[0]]
+    if successor.predecessor:
+        temp_id = topology[successor.predecessor].id
+        if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
+            topology[id].finger_table[0] = temp_id;
+    notify(topology[id].finger_table[0], id)
+
+
+def notify(to_id, from_id):
+    '''
+    it might be our predecessor
+    '''
+    if (topology[to_id].predecessor is None or ((topology[to_id].predecessor < from_id <= 2**key_size-1) or (0 <= from_id < to_id))):
+        topology[to_id].predecessor = from_id
+
+
+def fix_finger_table(id):
+    for i in range(key_size):
+        topology[id].finger_table[i] = find_successor((id + 2**i)%2**key_size, id)
 
 
 def main():
