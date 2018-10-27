@@ -206,7 +206,7 @@ def join_node(from_id, to_id):
             topology[from_id].predecessor = None
             # Find successor for from_id start search with to_id
             predecessor_id, successor_id = find_successor(to_id, from_id)
-            print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
+            # print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
             topology[from_id].finger_table[0] = successor_id
 
             # Notify successor_id that from_id might be its new predecessor
@@ -215,7 +215,7 @@ def join_node(from_id, to_id):
             stabilize_node(predecessor_id)
             # Fix fingers for predecessor
             fix_finger_table(predecessor_id)
-            print("After fix finger for {} finger {}".format(predecessor_id, topology[predecessor_id].finger_table[0]))
+            # print("After fix finger for {} finger {}".format(predecessor_id, topology[predecessor_id].finger_table[0]))
 
 
 def find_successor(to_id, from_id):
