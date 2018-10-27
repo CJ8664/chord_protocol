@@ -232,13 +232,15 @@ def find_successor(to_id, from_id):
 
 
 def closest_preceding_node(to_id, from_id):
-    '''Search the local table for the highest predecessor of id'''
+    '''Search the local table for the highest predecessor of from_id'''
     for i in range(key_size - 1, -1, -1):
         finger_id = topology[to_id].finger_table[i]
-        print('start {} i {} finger {} for {}'.format(from_id, i, finger_id, to_id))
-        # if (to_id < finger_id <= 2**key_size-1) or (0 <= finger_id < from_id):
-        if (to_id <= finger_id < from_id):
-            return finger_id
+        if (from_id <= to_id): # Cyclic check
+            if (to_id < finger_id <= 2**key_size-1) or (0 <= finger_id < from_id):
+                return finger_id
+        else:
+            if (to_id <= finger_id < from_id):
+                return finger_id
     return to_id
 
 
@@ -251,8 +253,12 @@ def stabilize(id):
     successor = topology[topology[id].finger_table[0]]
     if successor.predecessor:
         temp_id = topology[successor.predecessor].id
-        if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
-            topology[id].finger_table[0] = temp_id;
+        if(successor.id <= id):
+            if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
+                topology[id].finger_table[0] = temp_id
+        else:
+            if (id < temp_id < successor.id):
+                topology[id].finger_table[0] = temp_id
     notify(topology[id].finger_table[0], id)
 
 
