@@ -100,6 +100,7 @@ def start_batch_mode():
     # Remove last 'end' in test file and uncomment this line for mixed mode
     # start_interactive_mode()
 
+
 def start_interactive_mode():
     '''
     Start the program in Interactive mode
@@ -172,8 +173,15 @@ def add_node(id):
 def drop_node(id):
     '''Remove node with given id from ring.'''
     successor_id = topology[id].finger_table[0]
+    predecessor_id = topology[id].predecessor
     del topology[id]
+
+    # Update successor that its predecessor no longer exist
     check_predecessor(successor_id)
+
+    # Point deleting node's predecessor's successor to deleting node's successor
+    # A-B-C become A-C after deleting B
+    topology[predecessor_id].finger_table[0] = successor_id
     print('< Dropped node {}'.format(id))
 
 
