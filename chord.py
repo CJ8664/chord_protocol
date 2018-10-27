@@ -144,7 +144,7 @@ def execute_command(command):
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'stab', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
-            return stabilize_node(int(cmd_parts[1]))
+            return stabilize(int(cmd_parts[1]))
     elif cmd_parts[0] == 'show':
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts) - 1})
@@ -169,6 +169,7 @@ def add_node(id):
 
 def drop_node(id):
     '''Remove node with given id from ring.'''
+    del topology[id]
     print('Dropped node {}'.format(id))
 
 
@@ -204,12 +205,13 @@ def join_node(from_id, to_id):
         if not topology[from_id].has_joined:
             # Join
             topology[from_id].predecessor = None
-            topology[from_id].finger_table[0] = find_successor(to_id, from_id)
+            joined_to_id, successor_id = find_successor(to_id, from_id)
+            topology[from_id].finger_table[0] = successor_id
             topology[from_id].has_joined = True
             # Notify new successor that from_id might be its new predecessor
             notify(topology[from_id].finger_table[0], from_id)
-            # Stabalize
-            stabalize(to_id)
+            # Stabilize
+            stabilize(joined_to_id)
             # Fix fingers
             # fix_finger_table(to_id)
 
@@ -217,12 +219,21 @@ def find_successor(to_id, from_id):
     '''Find the successor starting with to_node'''
     successor_id = topology[to_id].finger_table[0]
 
-    if (to_id < from_id <= 2**key_size-1) or (0 <= from_id <= successor_id):
-        return successor_id
+    if (successor_id <= to_id):
+        if (to_id < from_id <= 2**key_size-1) or (0 <= from_id <= successor_id):
+            return (to_id, successor_id)
+        else:
+            # forward the query around the circle
+            candidate_id = closest_preceding_node(successor_id, from_id)
+            return find_successor(candidate_id, from_id)
     else:
-        # forward the query around the circle
-        candidate_id = closest_preceding_node(successor_id, from_id)
-        return find_successor(candidate_id, from_id)
+        if (to_id < from_id <= successor_id):
+            return (to_id, successor_id)
+        else:
+            # forward the query around the circle
+            candidate_id = closest_preceding_node(successor_id, from_id)
+            return find_successor(candidate_id, from_id)
+
 
 
 def closest_preceding_node(to_id, from_id):
@@ -230,12 +241,13 @@ def closest_preceding_node(to_id, from_id):
     for i in range(key_size - 1, -1, -1):
         finger_id = topology[to_id].finger_table[i]
         print('start {} i {} finger {} for {}'.format(from_id, i, finger_id, to_id))
-        if (to_id < finger_id <= 2**key_size-1) or (0 <= finger_id < from_id):
+        # if (to_id < finger_id <= 2**key_size-1) or (0 <= finger_id < from_id):
+        if (to_id <= finger_id < from_id):
             return finger_id
     return to_id
 
 
-def stabalize(id):
+def stabilize(id):
     '''
     Called periodically. n asks the successor about its predecessor,
     verifies if n's immediate successor is consistent,
