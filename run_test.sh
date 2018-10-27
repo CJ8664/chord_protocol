@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-printf "************ Running Test 1 ************"
-python chord.py -i test_cases/test1.tst 3 > test_cases/test1.res
-diff test_cases/test1.res test_cases/test1.op
-printf "****************************************\n\n\n"
+for i in `seq 1 2`
+do
+  printf "************ Running Test $i ************"
+  python chord.py -i test_cases/test$i.tst 3 > test_cases/test$i.res
+  diff test_cases/test$i.res test_cases/test$i.op
+  printf "****************************************\n\n\n"
+done

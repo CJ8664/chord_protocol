@@ -97,6 +97,8 @@ def start_batch_mode():
         for command in input_handle:
             execute_command(command)
 
+    # Remove last 'end' in test file and uncomment this line for mixed mode
+    # start_interactive_mode()
 
 def start_interactive_mode():
     '''
