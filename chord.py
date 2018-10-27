@@ -204,15 +204,18 @@ def join_node(from_id, to_id):
             topology[from_id].has_joined = True
 
             topology[from_id].predecessor = None
+            # Find successor for from_id start search with to_id
             predecessor_id, successor_id = find_successor(to_id, from_id)
+            print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
             topology[from_id].finger_table[0] = successor_id
 
-            # Notify new successor that from_id might be its new predecessor
+            # Notify successor_id that from_id might be its new predecessor
             notify(successor_id, from_id)
             # Stabilize predecessor
             stabilize_node(predecessor_id)
             # Fix fingers for predecessor
             fix_finger_table(predecessor_id)
+            print("After fix finger for {} finger {}".format(predecessor_id, topology[predecessor_id].finger_table[0]))
 
 
 def find_successor(to_id, from_id):
@@ -223,16 +226,16 @@ def find_successor(to_id, from_id):
         if (to_id < from_id <= 2**key_size-1) or (0 <= from_id <= successor_id):
             return (to_id, successor_id)
         else:
-            # forward the query around the circle
-            candidate_id = closest_preceding_node(successor_id, from_id)
-            return find_successor(candidate_id, from_id)
+            # forward the query around the circle to find the closest predecessor for from_id
+            predecessor_id = closest_preceding_node(successor_id, from_id)
+            return find_successor(predecessor_id, from_id)
     else:
         if (to_id < from_id <= successor_id):
             return (to_id, successor_id)
         else:
-            # forward the query around the circle
-            candidate_id = closest_preceding_node(successor_id, from_id)
-            return find_successor(candidate_id, from_id)
+            # forward the query around the circle to find the closest predecessor for from_id
+            predecessor_id = closest_preceding_node(successor_id, from_id)
+            return find_successor(predecessor_id, from_id)
 
 
 def closest_preceding_node(to_id, from_id):
@@ -243,7 +246,7 @@ def closest_preceding_node(to_id, from_id):
             if (to_id < finger_id <= 2**key_size-1) or (0 <= finger_id < from_id):
                 return finger_id
         else:
-            if (to_id <= finger_id < from_id):
+            if (to_id < finger_id < from_id):
                 return finger_id
     return to_id
 
@@ -258,33 +261,42 @@ def stabilize_node(id):
     if successor.predecessor:
         temp_id = topology[successor.predecessor].id
         if(successor.id <= id):
+            # print("in if stab for {} --> {},{},{} ".format(id, id, temp_id, successor.id))
             if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
                 topology[id].finger_table[0] = temp_id
+                # print("finger: {}".format(topology[id].finger_table[0]))
         else:
+            # print("in else stab for {} --> {},{},{}".format(id, id, temp_id, successor.id))
             if (id < temp_id < successor.id):
                 topology[id].finger_table[0] = temp_id
     notify(topology[id].finger_table[0], id)
+    # print("After stab for {} finger {}".format(id, topology[id].finger_table[0]))
 
 
 def notify(to_id, from_id):
     '''
     it might be our predecessor
     '''
-    if (topology[to_id].predecessor is None or ((topology[to_id].predecessor < from_id <= 2**key_size-1) or (0 <= from_id < to_id))):
-        topology[to_id].predecessor = from_id
+    if (to_id <= from_id): # Cyclic Check
+        if (topology[to_id].predecessor is None or ((topology[to_id].predecessor < from_id <= 2**key_size-1) or (0 <= from_id < to_id))):
+            topology[to_id].predecessor = from_id
+    else:
+        if (topology[to_id].predecessor is None or ((topology[to_id].predecessor < from_id < to_id))):
+            topology[to_id].predecessor = from_id
 
 
 def fix_finger_table(id):
     for i in range(key_size):
-        joined_to_id, successor_id = find_successor(id, (id + 2**i)%(2**key_size - 1))
+        joined_to_id, successor_id = find_successor(id, (id + 2**i)%(2**key_size))
         topology[id].finger_table[i] = successor_id
 
 
 def check_predecessor(id):
     '''Check if id's predecessor doesn't exist'''
-    predecessor_id = topology[id].predecessor
-    if predecessor_id not in topology:
-        topology[id].predecessor = None
+    if id in topology:
+        predecessor_id = topology[id].predecessor
+        if predecessor_id not in topology:
+            topology[id].predecessor = None
 
 
 def main():
