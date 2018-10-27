@@ -46,7 +46,7 @@ def print_error(type, args=dict()):
     '''
     Helper Method to print error messages
     '''
-    print(error_map[type].format(**args))
+    print("< " + error_map[type].format(**args))
 
 
 def is_int_node_id(id):
@@ -144,7 +144,7 @@ def execute_command(command):
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'stab', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
-            return stabilize(int(cmd_parts[1]))
+            return stabilize_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'show':
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts) - 1})
@@ -157,14 +157,14 @@ def execute_command(command):
 
 def list_ring():
     '''Show the id for each node in the ring.'''
-    print('Nodes: {}'.format(', '.join(map(str, sorted(topology.keys())))))
+    print('< Nodes: {}'.format(', '.join(map(str, sorted(topology.keys())))))
 
 
 def add_node(id):
     '''Add node to ring with given id.'''
     node = Node(id)
     topology[id] = node
-    print('Added node {}'.format(id))
+    print('< Added node {}'.format(id))
 
 
 def drop_node(id):
@@ -172,16 +172,17 @@ def drop_node(id):
     successor_id = topology[id].finger_table[0]
     del topology[id]
     check_predecessor(successor_id)
-    print('Dropped node {}'.format(id))
+    print('< Dropped node {}'.format(id))
 
 
 def show_node(id):
     '''Show the successor, predecessor, and finger table for the given node.'''
     if id in topology:
         node = topology[id]
-        print('Node {}: suc {}, pre {}: finger {}'.format(id, node.finger_table[0], node.predecessor, ','.join(map(str, node.finger_table))))
+        print('< Node {}: suc {}, pre {}: finger {}'.format(id, node.finger_table[0], node.predecessor, ','.join(map(str, node.finger_table))))
     else:
         print_error(4, {'id': id})
+
 
 def join_node(from_id, to_id):
     '''Join node from with the node to. Join should be call only once right after a node is added.'''
@@ -209,9 +210,10 @@ def join_node(from_id, to_id):
             # Notify new successor that from_id might be its new predecessor
             notify(successor_id, from_id)
             # Stabilize predecessor
-            stabilize(predecessor_id)
+            stabilize_node(predecessor_id)
             # Fix fingers for predecessor
             fix_finger_table(predecessor_id)
+
 
 def find_successor(to_id, from_id):
     '''Find the successor starting with to_node'''
@@ -246,7 +248,7 @@ def closest_preceding_node(to_id, from_id):
     return to_id
 
 
-def stabilize(id):
+def stabilize_node(id):
     '''
     Called periodically. n asks the successor about its predecessor,
     verifies if n's immediate successor is consistent,
