@@ -139,7 +139,7 @@ def execute_command(command):
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'fix', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
-            return fix_node(int(cmd_parts[1]))
+            return fix_finger_table(int(cmd_parts[1]))
     elif cmd_parts[0] == 'stab':
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'stab', 'act': 1, 'given': len(cmd_parts) - 1})
@@ -171,11 +171,6 @@ def drop_node(id):
     '''Remove node with given id from ring.'''
     del topology[id]
     print('Dropped node {}'.format(id))
-
-
-def fix_node(id):
-    '''Fix the finger table for given node.'''
-    pass
 
 
 def show_node(id):
@@ -213,13 +208,13 @@ def join_node(from_id, to_id):
             # Stabilize
             stabilize(joined_to_id)
             # Fix fingers
-            # fix_finger_table(to_id)
+            fix_finger_table(joined_to_id)
 
 def find_successor(to_id, from_id):
     '''Find the successor starting with to_node'''
     successor_id = topology[to_id].finger_table[0]
 
-    if (successor_id <= to_id):
+    if (successor_id <= to_id): # Cyclic check
         if (to_id < from_id <= 2**key_size-1) or (0 <= from_id <= successor_id):
             return (to_id, successor_id)
         else:
@@ -271,7 +266,8 @@ def notify(to_id, from_id):
 
 def fix_finger_table(id):
     for i in range(key_size):
-        topology[id].finger_table[i] = find_successor((id + 2**i)%2**key_size, id)
+        joined_to_id, successor_id = find_successor(id, (id + 2**i)%(2**key_size - 1))
+        topology[id].finger_table[i] = successor_id
 
 
 def main():
