@@ -169,7 +169,9 @@ def add_node(id):
 
 def drop_node(id):
     '''Remove node with given id from ring.'''
+    successor_id = topology[id].finger_table[0]
     del topology[id]
+    check_predecessor(successor_id)
     print('Dropped node {}'.format(id))
 
 
@@ -196,19 +198,20 @@ def join_node(from_id, to_id):
         print_error(4, {'id': to_id})
 
     if both_node_exists:
-
         if not topology[from_id].has_joined:
             # Join
-            topology[from_id].predecessor = None
-            joined_to_id, successor_id = find_successor(to_id, from_id)
-            topology[from_id].finger_table[0] = successor_id
             topology[from_id].has_joined = True
+
+            topology[from_id].predecessor = None
+            predecessor_id, successor_id = find_successor(to_id, from_id)
+            topology[from_id].finger_table[0] = successor_id
+
             # Notify new successor that from_id might be its new predecessor
-            notify(topology[from_id].finger_table[0], from_id)
-            # Stabilize
-            stabilize(joined_to_id)
-            # Fix fingers
-            fix_finger_table(joined_to_id)
+            notify(successor_id, from_id)
+            # Stabilize predecessor
+            stabilize(predecessor_id)
+            # Fix fingers for predecessor
+            fix_finger_table(predecessor_id)
 
 def find_successor(to_id, from_id):
     '''Find the successor starting with to_node'''
@@ -228,7 +231,6 @@ def find_successor(to_id, from_id):
             # forward the query around the circle
             candidate_id = closest_preceding_node(successor_id, from_id)
             return find_successor(candidate_id, from_id)
-
 
 
 def closest_preceding_node(to_id, from_id):
@@ -274,6 +276,13 @@ def fix_finger_table(id):
     for i in range(key_size):
         joined_to_id, successor_id = find_successor(id, (id + 2**i)%(2**key_size - 1))
         topology[id].finger_table[i] = successor_id
+
+
+def check_predecessor(id):
+    '''Check if id's predecessor doesn't exist'''
+    predecessor_id = topology[id].predecessor
+    if predecessor_id not in topology:
+        topology[id].predecessor = None
 
 
 def main():
