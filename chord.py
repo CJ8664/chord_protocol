@@ -98,7 +98,7 @@ def start_batch_mode():
             execute_command(command)
 
     # Remove last 'end' in test file and uncomment this line for mixed mode
-    # start_interactive_mode()
+    start_interactive_mode()
 
 
 def start_interactive_mode():
@@ -153,6 +153,9 @@ def execute_command(command):
             print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return show_node(int(cmd_parts[1]))
+    elif cmd_parts[0] == '#':
+        # Handle comments in the test file
+        pass
     else:
         print_error(0)
     return False
@@ -232,8 +235,10 @@ def find_successor(to_id, from_id):
     '''Find the successor starting with to_node'''
     successor_id = topology[to_id].finger_table[0]
 
+    # print("Find successor for {} starting with {}".format(from_id, to_id)),
     if (successor_id <= to_id): # Cyclic check
         if (to_id < from_id <= 2**key_size-1) or (0 <= from_id <= successor_id):
+            # print("{} in cyclic check if".format(successor_id))
             return (to_id, successor_id)
         else:
             # forward the query around the circle to find the closest predecessor for from_id
@@ -297,7 +302,8 @@ def notify(to_id, from_id):
 
 def fix_finger_table(id):
     for i in range(key_size):
-        joined_to_id, successor_id = find_successor(id, (id + 2**i)%(2**key_size))
+        _, successor_id = find_successor(id, (id + 2**i)%(2**key_size))
+        # print("Finger for {} entry {} val {}".format(id, i, successor_id))
         topology[id].finger_table[i] = successor_id
 
 
