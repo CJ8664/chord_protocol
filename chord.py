@@ -153,7 +153,7 @@ def execute_command(command):
             print_error(3, {'cmd': 'show', 'act': 1, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]):
             return show_node(int(cmd_parts[1]))
-    elif cmd_parts[0] == '#':
+    elif cmd_parts[0] == '#' or command == '':
         # Handle comments in the test file
         pass
     else:
