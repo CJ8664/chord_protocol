@@ -231,16 +231,16 @@ def join_node(from_id, to_id):
             topology[from_id].predecessor = None
             # Find successor for from_id start search with to_id
             predecessor_id, successor_id = find_successor(to_id, from_id)
-            print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
+            # print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
             topology[from_id].finger_table[0] = successor_id
 
             # Notify successor_id that from_id might be its new predecessor
             notify(successor_id, from_id)
+            # print("After notif {} {} pred for {} is {}".format(successor_id, from_id, successor_id, topology[successor_id].predecessor))
             # Stabilize predecessor
-            # show_node(successor_id)
-            # stabilize_node(predecessor_id)
+            stabilize_node(predecessor_id)
             # Fix fingers for predecessor
-            # fix_finger_table(predecessor_id)
+            fix_finger_table(predecessor_id)
             # print("After fix finger for {} finger {}".format(predecessor_id, topology[predecessor_id].finger_table[0]))
 
 
@@ -281,25 +281,28 @@ def closest_preceding_node(to_id, from_id):
 
 def stabilize_node(id):
     '''
-    Called periodically. n asks the successor about its predecessor,
-    verifies if that predecessor is n else tells the successor about n
+    Called periodically. 'id' asks its successor about its predecessor,
+    verifies if that predecessor is 'id' else tells the successor about 'id'
     '''
     successor_id = topology[id].finger_table[0]
+    # print("IN stab for {} successor is {}".format(id, successor_id))
     if successor_id not in topology:
         pass
     else:
-        successor = topology[topology[id].finger_table[0]]
-        if successor.predecessor:
-            temp_id = topology[successor.predecessor].id
-            if(successor.id <= id):
-                # print("in if stab for {} --> {},{},{} ".format(id, id, temp_id, successor.id))
-                if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
-                    topology[id].finger_table[0] = temp_id
+        successor = topology[successor_id]
+        # print("sp {}".format(successor.predecessor))
+        if successor.predecessor is not None:
+            succ_pred_id = topology[successor.predecessor].id
+            # print("successor {}'s predecessor is {}".format(successor_id, succ_pred_id))
+            if(successor_id <= id):
+                # print("in if stab for {} --> {},{},{} ".format(id, id, succ_pred_id, successor_id))
+                if (id < succ_pred_id <= 2**key_size-1) or (0 <= succ_pred_id < successor_id):
+                    topology[id].finger_table[0] = succ_pred_id
                     # print("finger: {}".format(topology[id].finger_table[0]))
             else:
-                # print("in else stab for {} --> {},{},{}".format(id, id, temp_id, successor.id))
-                if (id < temp_id < successor.id):
-                    topology[id].finger_table[0] = temp_id
+                # print("in else stab for {} --> {},{},{}".format(id, id, succ_pred_id, successor_id))
+                if (id < succ_pred_id < successor_id):
+                    topology[id].finger_table[0] = succ_pred_id
         notify(topology[id].finger_table[0], id)
         # print("After stab for {} finger {}".format(id, topology[id].finger_table[0]))
 
