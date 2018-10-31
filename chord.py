@@ -178,6 +178,9 @@ def list_ring():
 
 def add_node(id):
     '''Add node to ring with given id.'''
+    if id in topology:
+        print_error(5, {'id': id})
+        return False
     node = Node(id)
     topology[id] = node
     print('< Added node {}'.format(id))
@@ -192,12 +195,12 @@ def drop_node(id):
     predecessor_id = topology[id].predecessor
     del topology[id]
 
-    # Update successor that its predecessor no longer exist
+    # Tell id's successor that its predecessor no longer exist
     check_predecessor(successor_id)
 
     # Point deleting node's predecessor's successor to deleting node's successor
     # A-B-C become A-C after deleting B
-    if id in topology:
+    if predecessor_id in topology: # Stabilize might not have been called
         topology[predecessor_id].finger_table[0] = successor_id
     print('< Dropped node {}'.format(id))
 
@@ -284,9 +287,14 @@ def stabilize_node(id):
     Called periodically. 'id' asks its successor about its predecessor,
     verifies if that predecessor is 'id' else tells the successor about 'id'
     '''
+    if id not in topology:
+        print_error(4, {'id': id})
+        return False
+
     successor_id = topology[id].finger_table[0]
     # print("IN stab for {} successor is {}".format(id, successor_id))
     if successor_id not in topology:
+        print("blah")
         pass
     else:
         successor = topology[successor_id]
@@ -309,7 +317,7 @@ def stabilize_node(id):
 
 def notify(to_id, from_id):
     '''
-    it might be our predecessor
+    Notify to_id that from_id might be its new predecessor
     '''
     if (to_id <= from_id): # Cyclic Check
         if (topology[to_id].predecessor is None or ((topology[to_id].predecessor < from_id <= 2**key_size-1) or (0 <= from_id < to_id))):

@@ -1,0 +1,12 @@
+< Added node 0
+< Added node 1
+< Added node 2
+< Added node 3
+< Nodes: 0, 1, 2, 3
+< Dropped node 3
+< Dropped node 2
+< Nodes: 0, 1
+< Node 0: suc 1, pre None: finger 1,2
+< Node 1: suc 0, pre 0: finger 0,3
+< Node 0: suc 1, pre 1: finger 1,0
+< Node 1: suc 0, pre 0: finger 0,0
