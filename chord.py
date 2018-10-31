@@ -178,6 +178,9 @@ def list_ring():
 
 def add_node(id):
     '''Add node to ring with given id.'''
+    if id in topology:
+        print_error(5, {'id': id})
+        return False
     node = Node(id)
     topology[id] = node
     print('< Added node {}'.format(id))
