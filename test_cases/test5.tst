@@ -18,9 +18,9 @@ list
 show 1
 show 2
 show 3
-fix 2
-show 2
 # Stab 3 shall fix the No predecessor for 1
 stab 3
 show 1
+fix 2
+show 2
 end

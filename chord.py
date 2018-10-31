@@ -312,7 +312,7 @@ def stabilize_node(id):
 
 def notify(to_id, from_id):
     '''
-    it might be our predecessor
+    Notify to_id that from_id might be its new predecessor
     '''
     if (to_id <= from_id): # Cyclic Check
         if (topology[to_id].predecessor is None or ((topology[to_id].predecessor < from_id <= 2**key_size-1) or (0 <= from_id < to_id))):
