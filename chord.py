@@ -192,13 +192,12 @@ def drop_node(id):
     predecessor_id = topology[id].predecessor
     del topology[id]
 
-    # Update successor that its predecessor no longer exist
+    # Tell id's successor that its predecessor no longer exist
     check_predecessor(successor_id)
 
     # Point deleting node's predecessor's successor to deleting node's successor
     # A-B-C become A-C after deleting B
-    if id in topology:
-        topology[predecessor_id].finger_table[0] = successor_id
+    topology[predecessor_id].finger_table[0] = successor_id
     print('< Dropped node {}'.format(id))
 
 
@@ -284,6 +283,10 @@ def stabilize_node(id):
     Called periodically. 'id' asks its successor about its predecessor,
     verifies if that predecessor is 'id' else tells the successor about 'id'
     '''
+    if id not in topology:
+        print_error(4, {'id': id})
+        return False
+
     successor_id = topology[id].finger_table[0]
     # print("IN stab for {} successor is {}".format(id, successor_id))
     if successor_id not in topology:
