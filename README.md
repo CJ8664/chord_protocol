@@ -28,7 +28,7 @@ OR
 
 ### For Interactive mode
 
-``csjain@vm17-81:~/zookeeper_game$ chord -i <batch_file> 8``
+``csjain@vm17-81:~/zookeeper_game$ chord 8``
 
 
 ## EXTRA:
