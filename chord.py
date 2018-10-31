@@ -19,7 +19,7 @@ topology = dict()
 error_map = {
     0: "ERROR: invalid command",
     1: "ERROR: invalid integer {id}",
-    2: "ERROR: node id must be in [0,{id})",
+    2: "ERROR: node id must be in [0,{limit})",
     3: "SYNTAX ERROR: {cmd} expects {act} parameters not {given}",
     4: "ERROR: Node {id} does not exist",
     5: "ERROR: Node {id} exists"
@@ -54,8 +54,12 @@ def is_int_node_id(id):
     Check if the given ID is integer
     '''
     try:
-        _ = int(id)
-        return True
+        id = int(id)
+        if not ( 0 <= id <= 2**key_size -1):
+            print_error(2, {'limit': 2**key_size})
+            return False
+        else:
+            return True
     except Exception as ex:
         print_error(1, {'id': id})
         return False
@@ -119,10 +123,16 @@ def execute_command(command):
     command = command.strip()
     cmd_parts = command.split(' ')
     if cmd_parts[0] == 'end':
-        # stop the program without saying anything.
-        sys.exit()
+        if len(cmd_parts) != 1:
+            print_error(3, {'cmd': 'end', 'act': 0, 'given': len(cmd_parts) - 1})
+        else:
+            # stop the program without saying anything.
+            sys.exit()
     elif cmd_parts[0] == 'list':
-        return list_ring()
+        if len(cmd_parts) != 1:
+            print_error(3, {'cmd': 'list', 'act': 0, 'given': len(cmd_parts) - 1})
+        else:
+            return list_ring()
     elif cmd_parts[0] == 'add':
         if len(cmd_parts) != 2:
             print_error(3, {'cmd': 'add', 'act': 1, 'given': len(cmd_parts) - 1})
@@ -135,7 +145,7 @@ def execute_command(command):
             return drop_node(int(cmd_parts[1]))
     elif cmd_parts[0] == 'join':
         if len(cmd_parts) != 3:
-            print_error(3, {'cmd': 'fix', 'act': 2, 'given': len(cmd_parts) - 1})
+            print_error(3, {'cmd': 'join', 'act': 2, 'given': len(cmd_parts) - 1})
         elif is_int_node_id(cmd_parts[1]) and is_int_node_id(cmd_parts[2]):
             return join_node(int(cmd_parts[1]), int(cmd_parts[2]))
     elif cmd_parts[0] == 'fix':
@@ -175,6 +185,9 @@ def add_node(id):
 
 def drop_node(id):
     '''Remove node with given id from ring.'''
+    if id not in topology:
+        print_error(4, {'id': id})
+        return False
     successor_id = topology[id].finger_table[0]
     predecessor_id = topology[id].predecessor
     del topology[id]
@@ -184,7 +197,8 @@ def drop_node(id):
 
     # Point deleting node's predecessor's successor to deleting node's successor
     # A-B-C become A-C after deleting B
-    topology[predecessor_id].finger_table[0] = successor_id
+    if id in topology:
+        topology[predecessor_id].finger_table[0] = successor_id
     print('< Dropped node {}'.format(id))
 
 
@@ -199,8 +213,6 @@ def show_node(id):
 
 def join_node(from_id, to_id):
     '''Join node from with the node to. Join should be call only once right after a node is added.'''
-    global topology
-
     both_node_exists = True
 
     if from_id not in topology:
@@ -219,15 +231,16 @@ def join_node(from_id, to_id):
             topology[from_id].predecessor = None
             # Find successor for from_id start search with to_id
             predecessor_id, successor_id = find_successor(to_id, from_id)
-            # print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
+            print("For join {} {} we got predecessor: {} successor: {}".format(from_id, to_id, predecessor_id, successor_id))
             topology[from_id].finger_table[0] = successor_id
 
             # Notify successor_id that from_id might be its new predecessor
             notify(successor_id, from_id)
             # Stabilize predecessor
-            stabilize_node(predecessor_id)
+            # show_node(successor_id)
+            # stabilize_node(predecessor_id)
             # Fix fingers for predecessor
-            fix_finger_table(predecessor_id)
+            # fix_finger_table(predecessor_id)
             # print("After fix finger for {} finger {}".format(predecessor_id, topology[predecessor_id].finger_table[0]))
 
 
@@ -269,23 +282,26 @@ def closest_preceding_node(to_id, from_id):
 def stabilize_node(id):
     '''
     Called periodically. n asks the successor about its predecessor,
-    verifies if n's immediate successor is consistent,
-    and tells the successor about n
+    verifies if that predecessor is n else tells the successor about n
     '''
-    successor = topology[topology[id].finger_table[0]]
-    if successor.predecessor:
-        temp_id = topology[successor.predecessor].id
-        if(successor.id <= id):
-            # print("in if stab for {} --> {},{},{} ".format(id, id, temp_id, successor.id))
-            if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
-                topology[id].finger_table[0] = temp_id
-                # print("finger: {}".format(topology[id].finger_table[0]))
-        else:
-            # print("in else stab for {} --> {},{},{}".format(id, id, temp_id, successor.id))
-            if (id < temp_id < successor.id):
-                topology[id].finger_table[0] = temp_id
-    notify(topology[id].finger_table[0], id)
-    # print("After stab for {} finger {}".format(id, topology[id].finger_table[0]))
+    successor_id = topology[id].finger_table[0]
+    if successor_id not in topology:
+        pass
+    else:
+        successor = topology[topology[id].finger_table[0]]
+        if successor.predecessor:
+            temp_id = topology[successor.predecessor].id
+            if(successor.id <= id):
+                # print("in if stab for {} --> {},{},{} ".format(id, id, temp_id, successor.id))
+                if (id < temp_id <= 2**key_size-1) or (0 <= temp_id < successor.id):
+                    topology[id].finger_table[0] = temp_id
+                    # print("finger: {}".format(topology[id].finger_table[0]))
+            else:
+                # print("in else stab for {} --> {},{},{}".format(id, id, temp_id, successor.id))
+                if (id < temp_id < successor.id):
+                    topology[id].finger_table[0] = temp_id
+        notify(topology[id].finger_table[0], id)
+        # print("After stab for {} finger {}".format(id, topology[id].finger_table[0]))
 
 
 def notify(to_id, from_id):
@@ -301,6 +317,9 @@ def notify(to_id, from_id):
 
 
 def fix_finger_table(id):
+    if id not in topology:
+        print_error(4, {'id': id})
+        return False
     for i in range(key_size):
         _, successor_id = find_successor(id, (id + 2**i)%(2**key_size))
         # print("Finger for {} entry {} val {}".format(id, i, successor_id))
