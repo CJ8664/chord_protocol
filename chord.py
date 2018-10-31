@@ -197,7 +197,8 @@ def drop_node(id):
 
     # Point deleting node's predecessor's successor to deleting node's successor
     # A-B-C become A-C after deleting B
-    topology[predecessor_id].finger_table[0] = successor_id
+    if predecessor_id in topology: # Stabilize might not have been called
+        topology[predecessor_id].finger_table[0] = successor_id
     print('< Dropped node {}'.format(id))
 
 
