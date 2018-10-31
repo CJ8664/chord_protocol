@@ -294,6 +294,7 @@ def stabilize_node(id):
     successor_id = topology[id].finger_table[0]
     # print("IN stab for {} successor is {}".format(id, successor_id))
     if successor_id not in topology:
+        print("blah")
         pass
     else:
         successor = topology[successor_id]
