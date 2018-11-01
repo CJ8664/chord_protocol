@@ -1,5 +1,5 @@
 # Adding to case 2 everything is stable and global information is correct
-# Drop one node from middle, now stab but finger_table will be stale
+# Drop one node from middle, now stab and fix to update finger_table
 add 0
 add 1
 add 2
@@ -19,6 +19,9 @@ show 2
 show 3
 # Stab 0 will update the No pre for Node 2
 stab 0
+fix 0
+fix 2
+fix 3
 show 0
 show 2
 show 3

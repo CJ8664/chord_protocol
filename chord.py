@@ -22,7 +22,9 @@ error_map = {
     2: "ERROR: node id must be in [0,{limit})",
     3: "SYNTAX ERROR: {cmd} expects {act} parameters not {given}",
     4: "ERROR: Node {id} does not exist",
-    5: "ERROR: Node {id} exists"
+    5: "ERROR: Node {id} exists",
+    6: "ERROR: {key_size} is not valid hash table size, will exit...",
+    7: "ERROR: Input file not found, will exit..."
 }
 
 
@@ -55,7 +57,7 @@ def is_int_node_id(id):
     '''
     try:
         id = int(id)
-        if not ( 0 <= id <= 2**key_size -1):
+        if not ( 0 <= id < 2**key_size):
             print_error(2, {'limit': 2**key_size})
             return False
         else:
@@ -81,6 +83,10 @@ def get_operation_mode():
     file_name = args.file_name
     key_size = args.key_size[0]
 
+    if key_size < 1:
+        print_error(6, {'key_size': key_size})
+        sys.exit(-1)
+
     if file_name:
         # Batch mode
         return 0
@@ -94,7 +100,7 @@ def start_batch_mode():
     Process the input file and interpret the commands
     '''
     if not os.path.exists(file_name):
-        print("Input file not found, will exit...")
+        print_error(7)
         sys.exit(-1)
 
     with open(file_name, 'r') as input_handle:
@@ -191,17 +197,24 @@ def drop_node(id):
     if id not in topology:
         print_error(4, {'id': id})
         return False
+
     successor_id = topology[id].finger_table[0]
     predecessor_id = topology[id].predecessor
     del topology[id]
-
-    # Tell id's successor that its predecessor no longer exist
-    check_predecessor(successor_id)
 
     # Point deleting node's predecessor's successor to deleting node's successor
     # A-B-C become A-C after deleting B
     if predecessor_id in topology: # Stabilize might not have been called
         topology[predecessor_id].finger_table[0] = successor_id
+
+    # Tell id's successor that its predecessor no longer exist
+    check_predecessor(successor_id)
+
+    # Point deleting node's successor's predecessor to to deleting node's predecessor
+    # A-B-C become A-C after deleting B
+    if successor_id in topology: # Stabilize might not have been called
+        topology[successor_id].predecessor = predecessor_id
+
     print('< Dropped node {}'.format(id))
 
 
@@ -238,12 +251,12 @@ def join_node(from_id, to_id):
             topology[from_id].finger_table[0] = successor_id
 
             # Notify successor_id that from_id might be its new predecessor
-            notify(successor_id, from_id)
+            # notify(successor_id, from_id)
             # print("After notif {} {} pred for {} is {}".format(successor_id, from_id, successor_id, topology[successor_id].predecessor))
             # Stabilize predecessor
-            stabilize_node(predecessor_id)
+            # stabilize_node(predecessor_id)
             # Fix fingers for predecessor
-            fix_finger_table(predecessor_id)
+            # fix_finger_table(predecessor_id)
             # print("After fix finger for {} finger {}".format(predecessor_id, topology[predecessor_id].finger_table[0]))
 
 

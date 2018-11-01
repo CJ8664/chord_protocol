@@ -7,6 +7,8 @@
 < Node 0: suc 2, pre 3: finger 2,2
 < Node 2: suc 3, pre None: finger 3,0
 < Node 3: suc 0, pre 2: finger 0,1
-< Node 0: suc 2, pre 3: finger 2,2
-< Node 2: suc 3, pre 0: finger 3,0
-< Node 3: suc 0, pre 2: finger 0,1
+< Added node 1
+< Node 0: suc 1, pre 3: finger 1,2
+< Node 1: suc 2, pre 0: finger 2,1
+< Node 2: suc 3, pre 1: finger 3,0
+< Node 3: suc 0, pre 2: finger 0,2
