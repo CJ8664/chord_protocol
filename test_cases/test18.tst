@@ -25,6 +25,9 @@ fix 2
 fix 3
 add 1
 join 1 3
+# Fix finger tables
+fix 1
+fix 3
 show 0
 show 1
 show 2
