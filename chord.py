@@ -246,7 +246,8 @@ def join_node(from_id, to_id):
     if both_node_exists:
         if not topology[from_id].has_joined:
             # Join
-            topology[from_id].has_joined = True
+            if to_id != from_id:
+                topology[from_id].has_joined = True
 
             topology[from_id].predecessor = None
             # Find successor for from_id start search with to_id

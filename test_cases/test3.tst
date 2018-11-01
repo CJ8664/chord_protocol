@@ -1,7 +1,6 @@
 # Adding to case 2 everything is stable and global information is correct
 # Drop the first node 0, now no explicit stab or fix_finger_table
-# predecessor and successor are correct but finger table stale, so call fix table on all to update
-# After fix everything is consistent
+# predecessor and successor are correct but finger table stale
 add 0
 add 1
 add 2
@@ -65,14 +64,6 @@ show 2
 show 3
 
 drop 0
-show 1
-show 2
-show 3
-
-fix 1
-fix 2
-fix 3
-
 show 1
 show 2
 show 3
