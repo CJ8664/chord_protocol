@@ -271,14 +271,14 @@ def find_successor(to_id, from_id):
             return (to_id, successor_id)
         else:
             # forward the query around the circle to find the closest predecessor for from_id
-            predecessor_id = closest_preceding_node(successor_id, from_id)
+            predecessor_id = closest_preceding_node(to_id, from_id)
             return find_successor(predecessor_id, from_id)
     else:
         if (to_id < from_id <= successor_id):
             return (to_id, successor_id)
         else:
             # forward the query around the circle to find the closest predecessor for from_id
-            predecessor_id = closest_preceding_node(successor_id, from_id)
+            predecessor_id = closest_preceding_node(to_id, from_id)
             return find_successor(predecessor_id, from_id)
 
 
