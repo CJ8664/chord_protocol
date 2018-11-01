@@ -1,5 +1,5 @@
-# Just adding and joining nodes but no explicit stabilize or fix_finger_table
-# predecessor is None and successor is valid but finger table is stale
+# Just adding and joining nodes but no explicit stabilize or fix
+# predecessor is None and successor is valid and finger table is stale
 add 0
 add 1
 add 2

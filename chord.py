@@ -181,6 +181,10 @@ def list_ring():
     '''Show the id for each node in the ring.'''
     print('< Nodes: {}'.format(', '.join(map(str, sorted(topology.keys())))))
 
+    # Print helper
+    # for k in sorted(topology.keys()):
+    #     show_node(k)
+
 
 def add_node(id):
     '''Add node to ring with given id.'''
