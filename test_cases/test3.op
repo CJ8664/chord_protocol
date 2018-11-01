@@ -2,13 +2,19 @@
 < Added node 1
 < Added node 2
 < Added node 3
+< Nodes: 0, 1, 2, 3
+< Node 0: suc 0, pre None: finger 0,0
+< Node 1: suc 0, pre None: finger 0,1
+< Node 2: suc 0, pre None: finger 0,2
+< Node 3: suc 0, pre None: finger 0,3
 < Node 0: suc 1, pre 3: finger 1,2
 < Node 1: suc 2, pre 0: finger 2,3
 < Node 2: suc 3, pre 1: finger 3,0
 < Node 3: suc 0, pre 2: finger 0,1
-< Nodes: 0, 1, 2, 3
 < Dropped node 0
-< Nodes: 1, 2, 3
-< Node 1: suc 2, pre None: finger 2,3
+< Node 1: suc 2, pre 3: finger 2,3
 < Node 2: suc 3, pre 1: finger 3,0
+< Node 3: suc 1, pre 2: finger 1,1
+< Node 1: suc 2, pre 3: finger 2,3
+< Node 2: suc 3, pre 1: finger 3,1
 < Node 3: suc 1, pre 2: finger 1,1
