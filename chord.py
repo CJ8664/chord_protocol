@@ -108,7 +108,7 @@ def start_batch_mode():
             execute_command(command)
 
     # Remove last 'end' in test file and uncomment this line for mixed mode
-    start_interactive_mode()
+    # start_interactive_mode()
 
 
 def start_interactive_mode():

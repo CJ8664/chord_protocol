@@ -1,0 +1,39 @@
+< ERROR: node id must be in [0,4)
+< Added node 1
+< ERROR: invalid integer a1
+< SYNTAX ERROR: add expects 1 parameters not 3
+< ERROR: invalid integer x,
+< SYNTAX ERROR: add expects 1 parameters not 2
+< SYNTAX ERROR: add expects 1 parameters not 2
+< SYNTAX ERROR: join expects 2 parameters not 0
+< Added node 0
+< ERROR: Node 1 exists
+< SYNTAX ERROR: join expects 2 parameters not 0
+< SYNTAX ERROR: join expects 2 parameters not 1
+< ERROR: Node 2 does not exist
+< SYNTAX ERROR: list expects 0 parameters not 1
+< SYNTAX ERROR: list expects 0 parameters not 1
+< SYNTAX ERROR: list expects 0 parameters not 2
+< Nodes: 0, 1
+< ERROR: node id must be in [0,4)
+< ERROR: invalid integer --3
+< ERROR: Node 3 does not exist
+< Dropped node 1
+< ERROR: Node 1 does not exist
+< SYNTAX ERROR: drop expects 1 parameters not 2
+< ERROR: invalid integer x
+< SYNTAX ERROR: fix expects 1 parameters not 2
+< SYNTAX ERROR: fix expects 1 parameters not 0
+< ERROR: invalid integer x
+< SYNTAX ERROR: stab expects 1 parameters not 2
+< ERROR: Node 1 does not exist
+< ERROR: Node 2 does not exist
+< ERROR: Node 1 does not exist
+< SYNTAX ERROR: show expects 1 parameters not 2
+< ERROR: invalid integer x
+< Node 0: suc 0, pre 0: finger 0,0
+< Nodes: 0
+< Node 0: suc 0, pre 0: finger 0,0
+< ERROR: Node 1 does not exist
+< ERROR: Node 2 does not exist
+< ERROR: Node 1 does not exist
