@@ -311,7 +311,7 @@ def stabilize_node(id):
 
     # Case to handle stale information
     if topology[id].predecessor not in topology:
-        topology[id].predecessor = id
+        topology[id].predecessor = None
     if topology[id].finger_table[0] not in topology:
         topology[id].finger_table[0] = id
 
