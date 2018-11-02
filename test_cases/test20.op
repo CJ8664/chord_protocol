@@ -1,0 +1,16 @@
+< Added node 0
+< Added node 120
+< Added node 43
+< Added node 200
+< Added node 10
+< ERROR: Node 1000 does not exist
+< ERROR: Invalid integer 2.3
+< ERROR: Invalid integer 1.2
+< ERROR: Invalid integer ads
+< Added node 555
+< Node 0: suc 0, pre 555: finger 0,0,0,0,0,0,0,0,0,0
+< Node 120: suc 0, pre 43: finger 0,0,0,0,0,0,0,0,0,0
+< Node 43: suc 120, pre None: finger 120,120,120,120,120,120,120,0,0,0
+< Node 200: suc 0, pre 10: finger 0,0,0,0,0,0,0,0,0,0
+< Node 10: suc 200, pre None: finger 200,200,200,200,200,200,200,200,0,0
+< Node 555: suc 0, pre None: finger 0,0,0,0,0,0,0,0,0,0
